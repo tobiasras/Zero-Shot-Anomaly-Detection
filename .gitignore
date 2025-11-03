@@ -1,0 +1,17 @@
+# Ignore data folder
+data/
+
+# Ignore notebooks folder
+notebooks/
+
+# Ignore all Jupyter notebooks
+*.ipynb
+
+# (optional) Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# (optional) Ignore logs and checkpoints
+logs/
+checkpoints/
