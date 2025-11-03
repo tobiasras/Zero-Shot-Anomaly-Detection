@@ -15,3 +15,6 @@ __pycache__/
 # (optional) Ignore logs and checkpoints
 logs/
 checkpoints/
+
+
+.idea
