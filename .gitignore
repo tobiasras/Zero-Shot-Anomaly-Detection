@@ -1,9 +1,11 @@
 # Ignore data folder
 /data/
 
+/figures/
+
 # Ignore notebooks folder
 notebooks/
-
+/experiments/
 # Ignore all Jupyter notebooks
 *.ipynb
 
