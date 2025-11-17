@@ -1,0 +1,7 @@
+{
+    "seed": 42,
+    "title": "title_experiment",
+    "output_path": "outputs/",
+    "ref_img_count": 50,
+    "image_size": 256
+}
