@@ -26,7 +26,7 @@ def load_config(path):
     return config
 
 
-def run_experiment(object_type: str, experiment_param, config):
+def run_experiment(object_type: str, experiment_param, vit_model, config):
     test_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'test'
     ref_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'train'
 
@@ -42,9 +42,7 @@ def run_experiment(object_type: str, experiment_param, config):
 
     ref_images_stack = torch.stack(ref_images)
 
-    model_name = experiment_param['vit_model']
-    model = get_vit_model(model_name).eval()
-
+    model = vit_model
     index = 0
     with torch.no_grad():
         ref_embed = model.get_intermediate_layers(ref_images_stack, n=1)[0][:, 1:, :]
@@ -56,7 +54,7 @@ def run_experiment(object_type: str, experiment_param, config):
             distance_type = experiment_param['distance']
             sim_matrix = calculate_distance(ref_embed, embed[0], measure_type=distance_type)  # [num_patches]
 
-            topk = 5
+            topk = experiment_param["top_n"]
             if distance_type.lower() == "cosine":
                 score = -sim_matrix.topk(topk, largest=False).values.mean().item()
             else:
@@ -86,9 +84,12 @@ if __name__ == '__main__':
     random.seed(seed)
 
     # each experiment declared:
-    for experiment_params in config["experiments"]:
+    for experiment_param in config["experiments"]:
         # loop over dataset objects: bottle, cable, ects
-        log.info(f'\n{experiment_params}')
+        log.info(f'\n{experiment_param}')
+
+        model_name = experiment_param['vit_model']
+        model = get_vit_model(model_name).eval()
 
         for object_type in config['object']:
-            run_experiment(object_type, experiment_params, config)
+            run_experiment(object_type, experiment_param, model, config)
