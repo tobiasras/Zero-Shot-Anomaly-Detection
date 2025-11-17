@@ -13,10 +13,12 @@ from util.visualization import plot_sim_matrix, save_img, plot_roc_curve
 import argparse
 import json
 
+
 def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", "-c", required=True, help="Path to JSON config file")
     return parser.parse_args()
+
 
 def load_config(path):
     with open(path, "r") as f:
@@ -24,64 +26,69 @@ def load_config(path):
     return config
 
 
-if __name__ == '__main__':
-    log.info('Starting Zero-Shot Anomaly')
-    args = read_args()
-    config = load_config(args.config)
-
-    seed = config['seed']
-    log.info('Setting seed: ' + str(seed))
-    random.seed(seed)
-
-    object_type = "wood"
-    log.info('Object Type : ' + str(object_type))
+def run_experiment(object_type: str, experiment_param, config):
     test_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'test'
     ref_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'train'
 
     # used for transforming images to dinoV3
-    image_transformer = Transform(config['image_size'])
+    image_transformer = Transform(experiment_param['image_size'])
     test_dataset = DatasetLoader(test_path, image_transformer.get_transform())
     ref_dataset = DatasetLoader(ref_path, image_transformer.get_transform())
 
-    ref_count = config['ref_img_count']
+    ref_count = experiment_param['ref_img_count']
     indices = random.sample(range(len(ref_dataset)), ref_count)
     ref_images_tuple = [ref_dataset[i] for i in indices]
     ref_images, _ = zip(*ref_images_tuple)
 
-    log.info('total ref images: ' + str(len(ref_images)))
-
     ref_images_stack = torch.stack(ref_images)
-    model_name = "dino_vits16"
-    log.info('Using model: ' + model_name)
 
+    model_name = experiment_param['vit_model']
     model = get_vit_model(model_name).eval()
 
     index = 0
     with torch.no_grad():
         ref_embed = model.get_intermediate_layers(ref_images_stack, n=1)[0][:, 1:, :]
-        ref_embed = ref_embed.mean(dim=0)
-
         scores = []
         labels = []
         for img, path in test_dataset:
             embed = model.get_intermediate_layers(img.unsqueeze(0), n=1)[0][:, 1:, :]
-            sim_matrix = calculate_distance(ref_embed, embed[0])  # [num_patches]
+
+            distance_type = experiment_param['distance']
+            sim_matrix = calculate_distance(ref_embed, embed[0], measure_type=distance_type)  # [num_patches]
 
             topk = 5
-            score = -sim_matrix.topk(topk, largest=False).values.mean().item() # high sim = not anomaly
+            if distance_type.lower() == "cosine":
+                score = -sim_matrix.topk(topk, largest=False).values.mean().item()
+            else:
+                score = sim_matrix.topk(topk, largest=True).values.mean().item()
 
             scores.append((score, path))
             is_anomaly = "good" not in str(path)
             labels.append(1 if is_anomaly else 0)
             index += 1
 
-    img = image_transformer.reverse_transform(ref_images_stack.squeeze(0).mean(dim=0))
-    save_img(img, PROJECT_ROOT / 'experiments' / 'figures', "ref_images")
-
     values = np.array([s for s, _ in scores]).reshape(-1, 1)
     plot_roc_curve(labels, values)
 
-
     auc = roc_auc_score(labels, values)
-    log.info(f"AUROC: {auc:.4f}")
 
+    log.info(f"{object_type}: AUROC: {auc:.4f}")
+
+
+if __name__ == '__main__':
+    log.info('Starting Zero-Shot Anomaly')
+    args = read_args()
+    config = load_config(args.config)
+
+    log.info('\n' + json.dumps(config, indent=4))
+
+    seed = config['seed']
+    random.seed(seed)
+
+    # each experiment declared:
+    for experiment_params in config["experiments"]:
+        # loop over dataset objects: bottle, cable, ects
+        log.info(f'\n{experiment_params}')
+
+        for object_type in config['object']:
+            run_experiment(object_type, experiment_params, config)

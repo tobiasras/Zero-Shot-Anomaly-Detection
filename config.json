@@ -1,7 +1,36 @@
 {
-    "seed": 42,
-    "title": "title_experiment",
-    "output_path": "outputs/",
-    "ref_img_count": 50,
-    "image_size": 256
+  "seed": 42,
+  "title": "title_experiment",
+  "output_path": "outputs/",
+  "object": [
+    "bottle",
+    "cable",
+    "capsule",
+    "carpet",
+    "grid",
+    "hazelnut",
+    "leather",
+    "metal_nut",
+    "pill",
+    "screw",
+    "tile",
+    "toothbrush",
+    "transistor",
+    "wood",
+    "zipper"
+  ],
+  "experiments": [
+    {
+      "ref_img_count": 50,
+      "image_size": 256,
+      "vit_model": "dino_vits16",
+      "distance": "mahalanobis"
+    }
+  ]
 }
+
+
+
+
+
+
