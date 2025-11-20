@@ -17,7 +17,7 @@ if __name__ == '__main__':
     log.info('Setting seed: ' + str(seed))
     random.seed(seed)
 
-    object_type = "bottle"
+    object_type = "grid"
     log.info('Object Type : ' + str(object_type))
     test_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'test'
     ref_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'train'
