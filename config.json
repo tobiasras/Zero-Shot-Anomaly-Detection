@@ -1,6 +1,6 @@
 {
   "seed": 42,
-  "title": "title_experiment",
+  "title": "zero shot anomaly detection",
   "output_path": "outputs/",
   "object": [
     "bottle",
@@ -25,21 +25,28 @@
       "image_size": 256,
       "vit_model": "dino_vits16",
       "distance": "mahalanobis",
-      "top_n": 10
-    },
-    {
-      "ref_img_count": 50,
-      "image_size": 256,
-      "vit_model": "dino_vits16",
-      "distance": "mahalanobis",
       "top_n": 5
     },
     {
       "ref_img_count": 50,
       "image_size": 256,
       "vit_model": "dino_vits16",
-      "distance": "mahalanobis",
-      "top_n": 1
+      "distance": "cosine",
+      "top_n": 5
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 256,
+      "vit_model": "dino_vits16",
+      "distance": "manhattan",
+      "top_n": 5
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 256,
+      "vit_model": "dino_vits16",
+      "distance": "euclidean",
+      "top_n": 5
     }
   ]
 }

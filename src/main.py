@@ -1,15 +1,15 @@
+import io
+
 from data.data_loader import DatasetLoader
 from models.load_vision_transformer import get_vit_model
 import random
 import torch
 from util.logger import log
 import numpy as np
-from sklearn.mixture import GaussianMixture
 from sklearn.metrics import roc_auc_score
 from util.paths import PROJECT_ROOT
 from data.transform import Transform
 from evaluation.distance import calculate_distance
-from util.visualization import plot_sim_matrix, save_img, plot_roc_curve
 import argparse
 import json
 
@@ -26,7 +26,7 @@ def load_config(path):
     return config
 
 
-def run_experiment(object_type: str, experiment_param, vit_model, config):
+def run_experiment(object_type: str, experiment_param, vit_model):
     test_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'test'
     ref_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'train'
 
@@ -46,6 +46,7 @@ def run_experiment(object_type: str, experiment_param, vit_model, config):
     index = 0
     with torch.no_grad():
         ref_embed = model.get_intermediate_layers(ref_images_stack, n=1)[0][:, 1:, :]
+
         scores = []
         labels = []
         for img, path in test_dataset:
@@ -65,12 +66,14 @@ def run_experiment(object_type: str, experiment_param, vit_model, config):
             labels.append(1 if is_anomaly else 0)
             index += 1
 
-    values = np.array([s for s, _ in scores]).reshape(-1, 1)
-    plot_roc_curve(labels, values)
 
+    values = np.array([s for s, _ in scores]).reshape(-1, 1)
     auc = roc_auc_score(labels, values)
 
     log.info(f"{object_type}: AUROC: {auc:.4f}")
+
+    return auc
+
 
 
 if __name__ == '__main__':
@@ -78,18 +81,32 @@ if __name__ == '__main__':
     args = read_args()
     config = load_config(args.config)
 
-    log.info('\n' + json.dumps(config, indent=4))
-
     seed = config['seed']
     random.seed(seed)
+
+
+    result = {}
 
     # each experiment declared:
     for experiment_param in config["experiments"]:
         # loop over dataset objects: bottle, cable, ects
-        log.info(f'\n{experiment_param}')
+        log.info(f'{experiment_param}')
 
         model_name = experiment_param['vit_model']
         model = get_vit_model(model_name).eval()
 
+        data = {}
+        all_scores = []
         for object_type in config['object']:
-            run_experiment(object_type, experiment_param, model, config)
+            score = run_experiment(object_type, experiment_param, model)
+            all_scores.append(score)
+            data[object_type] = score
+
+        avg_score = np.mean(all_scores)
+        data['all'] = avg_score
+        log.info(f'Avg score: {avg_score}')
+
+
+        with open(f"{config['output']}/{config["vit_model"]}_{config['distance']}_{str(config['ref_img_count'])}_{str(config['top_n'])}.json", "w") as f:
+            json.dump(data, f, indent=4)
+

@@ -11,6 +11,7 @@ def calculate_distance(ref_patches: torch.Tensor,
     if measure_type == "cosine":
         ref_patches = ref_patches.mean(dim=0)
         return 1 - F.cosine_similarity(ref_patches, image_patches, dim=1)
+
     elif measure_type == "euclidean":
         ref_patches = ref_patches.mean(dim=0)
         # L2 distance
@@ -33,6 +34,5 @@ def calculate_distance(ref_patches: torch.Tensor,
         dist = torch.sqrt(torch.sum(diff @ inv_cov * diff, dim=1))
 
         return dist
-
     else:
         raise ValueError(f"Unknown distance measure: {measure_type}")
