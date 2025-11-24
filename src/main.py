@@ -41,7 +41,6 @@ def run_experiment(object_type: str, experiment_param, vit_model):
     ref_images, _ = zip(*ref_images_tuple)
 
     ref_images_stack = torch.stack(ref_images)
-
     model = vit_model
     index = 0
     with torch.no_grad():
@@ -86,7 +85,6 @@ if __name__ == '__main__':
     seed = config['seed']
     random.seed(seed)
 
-
     result = {}
 
     # each experiment declared:
@@ -108,7 +106,7 @@ if __name__ == '__main__':
         data['all'] = avg_score
         log.info(f'Avg score: {avg_score}')
 
-        filename = f"{experiment_param['image_size']}{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
+        filename = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
 
         output_file = f"{config['output_path']}/{filename}.json"
 
@@ -116,5 +114,3 @@ if __name__ == '__main__':
 
         with open(output_file, "w") as f:
             json.dump(data, f, indent=4)
-
-
