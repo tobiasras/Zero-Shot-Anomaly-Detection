@@ -107,6 +107,6 @@ if __name__ == '__main__':
         log.info(f'Avg score: {avg_score}')
 
 
-        with open(f"{config['output']}/{config["vit_model"]}_{config['distance']}_{str(config['ref_img_count'])}_{str(config['top_n'])}.json", "w") as f:
+        with open(f"{config['output_path']}/{config["vit_model"]}_{config['distance']}_{str(config['ref_img_count'])}_{str(config['top_n'])}.json", "w") as f:
             json.dump(data, f, indent=4)
 
