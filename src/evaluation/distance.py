@@ -10,7 +10,10 @@ def calculate_distance(ref_patches: torch.Tensor,
 
     if measure_type == "cosine":
         ref_patches = ref_patches.mean(dim=0)
-        return 1 - F.cosine_similarity(ref_patches, image_patches, dim=1)
+        # normalize embeddings for cosine
+        ref_patches = ref_patches / ref_patches.norm()
+        image_patches = image_patches / image_patches.norm(dim=1, keepdim=True)
+        return F.cosine_similarity(ref_patches, image_patches, dim=1)  # higher = more similar
 
     elif measure_type == "euclidean":
         ref_patches = ref_patches.mean(dim=0)
