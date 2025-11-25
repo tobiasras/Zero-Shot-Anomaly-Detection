@@ -35,24 +35,29 @@ def run_experiment(object_type: str, experiment_param, vit_model):
     test_dataset = DatasetLoader(test_path, image_transformer.get_transform())
     ref_dataset = DatasetLoader(ref_path, image_transformer.get_transform())
 
+    # fetch ref images
     ref_count = experiment_param['ref_img_count']
     indices = random.sample(range(len(ref_dataset)), ref_count)
+
+    # unpack images  ref_dataset gives: image, Path.
     ref_images_tuple = [ref_dataset[i] for i in indices]
     ref_images, _ = zip(*ref_images_tuple)
 
     ref_images_stack = torch.stack(ref_images)
     model = vit_model
+
     index = 0
     with torch.no_grad():
+        # run ref images through dino model to get embeddings:
         ref_embed = model.get_intermediate_layers(ref_images_stack, n=1)[0][:, 1:, :]
-
         scores = []
         labels = []
         for img, path in test_dataset:
             embed = model.get_intermediate_layers(img.unsqueeze(0), n=1)[0][:, 1:, :]
 
             distance_type = experiment_param['distance']
-            sim_matrix = calculate_distance(ref_embed, embed[0], measure_type=distance_type)  # [num_patches]
+            ref_aggregation_method = experiment_param['ref_aggregation_method']
+            sim_matrix = calculate_distance(ref_embed, embed[0], measure_type=distance_type, ref_aggregation_method=ref_aggregation_method)  # [num_patches]
 
             topk = experiment_param["top_n"]
             if distance_type.lower() == "cosine":
@@ -84,7 +89,6 @@ if __name__ == '__main__':
 
     seed = config['seed']
     random.seed(seed)
-
     result = {}
 
     # each experiment declared:
@@ -106,11 +110,10 @@ if __name__ == '__main__':
         data['all'] = avg_score
         log.info(f'Avg score: {avg_score}')
 
-        filename = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
-
+        filename = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_aggregation_method']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
         output_file = f"{config['output_path']}/{filename}.json"
-
         os.makedirs(config['output_path'], exist_ok=True)
 
         with open(output_file, "w") as f:
             json.dump(data, f, indent=4)
+
