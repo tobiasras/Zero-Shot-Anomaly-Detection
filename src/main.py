@@ -68,8 +68,7 @@ def run_experiment(object_type: str, experiment_param, vit_model, output_path):
             else:
                 anomaly_score = sim_matrix
 
-            visualize_anomaly(sim_matrix, path, topk, output_path, filename)
-
+            #visualize_anomaly(sim_matrix, path, topk, output_path, experiment_name)
 
             score = anomaly_score.topk(topk, largest=True).values.mean().item()
 
@@ -100,21 +99,18 @@ if __name__ == '__main__':
 
     # each experiment declared:
     for experiment_param in config["experiments"]:
+        experiment_name = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_aggregation_method']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
+        output_file = f"{config['output_path']}/{experiment_name}"
         # loop over dataset objects: bottle, cable, ects
         log.info(f'\n{experiment_param}')
 
         model_name = experiment_param['vit_model']
         model = get_vit_model(model_name).eval()
 
-        filename = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
-
-        output = f"{config['output_path']}/{filename}"
-
-
         data = {}
         all_scores = []
         for object_type in config['object']:
-            score = run_experiment(object_type, experiment_param, model, output)
+            score = run_experiment(object_type, experiment_param, model, output_file)
             all_scores.append(score)
             data[object_type] = score
 
@@ -122,9 +118,6 @@ if __name__ == '__main__':
         data['all'] = avg_score
         log.info(f'Avg score: {avg_score}')
 
-        filename = f"{experiment_param['image_size']}_{experiment_param['vit_model']}_{experiment_param['distance']}_{experiment_param['ref_aggregation_method']}_{experiment_param['ref_img_count']}_{experiment_param['top_n']}"
-        output_file = f"{config['output_path']}/{filename}.json"
         os.makedirs(config['output_path'], exist_ok=True)
-
-        with open(output + ".json", "w") as f:
+        with open(output_file + ".json", "w") as f:
             json.dump(data, f, indent=4)

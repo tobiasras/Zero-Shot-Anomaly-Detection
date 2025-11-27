@@ -18,5 +18,5 @@ __pycache__/
 logs/
 checkpoints/
 
-/outputs
+/outputs/
 .idea

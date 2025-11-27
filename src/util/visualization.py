@@ -100,7 +100,7 @@ def visualize_anomaly(sim_matrix, path_to_img, topk, base_output, experiment_nam
     object_type = p.parents[2].name        # "bottle" / "cable" / ...
 
     # Build output path: outputs/experiment/object_type/error_type/
-    save_dir = Path(base_output) / experiment_name / object_type / error_type
+    save_dir = Path(base_output) / object_type / error_type
     save_dir.mkdir(parents=True, exist_ok=True)
 
     # Save filename only

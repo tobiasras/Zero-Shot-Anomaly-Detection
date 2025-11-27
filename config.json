@@ -24,15 +24,63 @@
       "ref_img_count": 50,
       "image_size": 224,
       "vit_model": "dino_vits16",
-      "distance": "cosine",
+      "distance": "mahalanobis",
       "top_n": 5,
-      "ref_aggregation_method": "median"
+      "ref_aggregation_method": ""
     },
     {
       "ref_img_count": 50,
       "image_size": 224,
       "vit_model": "dino_vits16",
-      "distance": "mahalanobis",
+      "distance": "cosine",
+      "top_n": 5,
+      "ref_aggregation_method": "mean"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "manhattan",
+      "top_n": 5,
+      "ref_aggregation_method": "mean"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "euclidean",
+      "top_n": 5,
+      "ref_aggregation_method": "mean"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "cosine",
+      "top_n": 5,
+      "ref_aggregation_method": "max"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "manhattan",
+      "top_n": 5,
+      "ref_aggregation_method": "max"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "euclidean",
+      "top_n": 5,
+      "ref_aggregation_method": "max"
+    },
+    {
+      "ref_img_count": 50,
+      "image_size": 224,
+      "vit_model": "dino_vits16",
+      "distance": "cosine",
       "top_n": 5,
       "ref_aggregation_method": "median"
     },
