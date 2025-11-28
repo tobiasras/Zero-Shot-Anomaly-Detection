@@ -46,13 +46,21 @@ def run_experiment(object_type: str, experiment_param, vit_model, output_path):
     ref_images, _ = zip(*ref_images_tuple)
 
     ref_images_stack = torch.stack(ref_images)
-    model = vit_model
 
+    score, labels = compute_scores_dino(vit_model, ref_images_stack, test_dataset, experiment_param)
+
+    auc = roc_auc_score(labels, score)
+
+    log.info(f"{object_type}: AUROC: {auc:.4f}")
+
+    return auc
+
+
+def compute_scores_dino(model, ref_images_stack, test_dataset, experiment_param):
     index = 0
     with torch.no_grad():
         # run ref images through dino model to get embeddings:
         ref_embed = model.get_intermediate_layers(ref_images_stack, n=1)[0][:, 1:, :]
-
         scores = []
         labels = []
         for img, path in test_dataset:
@@ -79,12 +87,17 @@ def run_experiment(object_type: str, experiment_param, vit_model, output_path):
             index += 1
 
     values = np.array([s for s, _ in scores]).reshape(-1, 1)
-    auc = roc_auc_score(labels, values)
+    return values, labels
 
-    log.info(f"{object_type}: AUROC: {auc:.4f}")
 
-    return auc
 
+
+
+
+
+
+def compute_scores_dinov3():
+    pass
 
 
 if __name__ == '__main__':
@@ -121,3 +134,6 @@ if __name__ == '__main__':
         os.makedirs(config['output_path'], exist_ok=True)
         with open(output_file + ".json", "w") as f:
             json.dump(data, f, indent=4)
+
+
+
