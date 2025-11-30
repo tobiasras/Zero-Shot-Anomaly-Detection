@@ -7,16 +7,29 @@ from PIL import Image
 import torch
 from pathlib import Path
 import matplotlib
-
+from sklearn.decomposition import PCA
+import numpy as np
 matplotlib.use('TkAgg')  # or 'Qt5Agg', 'Agg' for headless
 
 
-def embedding_to_rgb(embedding):
-    pca = PCA(n_components=3)
-    emb = pca.fit_transform(embedding)
+def embedding_to_rgb(embedding, grid_size=None):
+    """
+    embedding: (num_patches, embedding_dim)
+    grid_size: (H_patches, W_patches) or None
+    Returns: (H_patches, W_patches, 3) RGB image
+    """
 
-    emb_scaled = 255 * (emb - emb.min()) / (emb.max() - emb.min())
-    emb_scaled = emb_scaled.astype(np.uint8)  # convert to uint8 if saving as image
+
+    pca = PCA(n_components=3)
+    emb_3d = pca.fit_transform(embedding)  # (num_patches, 3)
+
+    # Scale to 0-255
+    emb_scaled = 255 * (emb_3d - emb_3d.min()) / (emb_3d.max() - emb_3d.min())
+    emb_scaled = emb_scaled.astype(np.uint8)
+
+    if grid_size is not None:
+        H, W = grid_size
+        emb_scaled = emb_scaled.reshape(H, W, 3)
 
     return emb_scaled
 

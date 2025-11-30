@@ -1,7 +1,10 @@
 import torch
 from torchvision import transforms
 from PIL import Image
+"""
+FOR DINO V2 - V1
 
+"""
 
 class Transform:
     def __init__(self, resize, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
@@ -25,7 +28,7 @@ class Transform:
         # Clamp to [0,1]
         tensor = tensor.clamp(0, 1)
 
-        # Convert to PIL Imagewwwwwwww
+        # Convert to PIL Image
         img = transforms.ToPILImage()(tensor)
 
         # Resize back if original_size is provided
@@ -33,3 +36,17 @@ class Transform:
             img = img.resize(original_size, Image.BILINEAR)
 
         return img
+
+
+
+"""
+FOR DINO V3
+
+"""
+class ProcessorTransform:
+    def __init__(self, processor):
+        self.processor = processor
+
+    def __call__(self, image):
+        # Returns (C, H, W) tensor
+        return self.processor(images=image, return_tensors="pt")['pixel_values'].squeeze(0)

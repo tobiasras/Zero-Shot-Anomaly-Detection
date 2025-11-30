@@ -21,3 +21,8 @@ class DatasetLoader(Dataset):
             image = self.transform(image)
 
         return image, path
+
+
+
+
+

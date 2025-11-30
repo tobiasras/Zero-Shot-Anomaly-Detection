@@ -24,14 +24,6 @@
       "ref_img_count": 50,
       "image_size": 224,
       "vit_model": "dinov2_vits14",
-      "distance": "cosine",
-      "top_n": 5,
-      "ref_aggregation_method": "mean"
-    },
-    {
-      "ref_img_count": 50,
-      "image_size": 224,
-      "vit_model": "dinov2_vits14",
       "distance": "manhattan",
       "top_n": 5,
       "ref_aggregation_method": "mean"
