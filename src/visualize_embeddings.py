@@ -41,7 +41,7 @@ def reverse_transform(tensor_img):
 
     return img
 
-
+print("test")
 if __name__ == '__main__':
     log.info('Starting Zero-Shot Anomaly')
     matplotlib.use("TkAgg")  # or "Qt5Agg" if you have PyQt5 installed
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     model = get_vit_model("dino_vits16").eval()
 
-    data_type = "screw"
+    data_type = "carpet"
     path_to_data = PROJECT_ROOT / "data" / "mvtec_anomaly_detection" / data_type / "train" / "good"
     dataset = DatasetLoader(path_to_data, transform=transform)
 

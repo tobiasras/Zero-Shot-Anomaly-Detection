@@ -1,0 +1,1 @@
+sam_vit_b.pth need to be downloaded into this folder. Was removed from github due to the size.

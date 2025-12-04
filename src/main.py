@@ -1,17 +1,17 @@
 import io
 
-from data.data_loader import DatasetLoader
-from models.load_vision_transformer import get_vit_model
+from src.data.data_loader import DatasetLoader
+from src.models.load_vision_transformer import get_vit_model
+from src.util.logger import log
+from src.util.paths import PROJECT_ROOT
+from src.util.visualization import visualize_anomaly
+from src.data.transform import Transform
+from src.evaluation.distance import calculate_distance
+
 import random
 import torch
-from util.logger import log
 import numpy as np
 from sklearn.metrics import roc_auc_score
-from util.paths import PROJECT_ROOT
-
-from util.visualization import visualize_anomaly
-from data.transform import Transform
-from evaluation.distance import calculate_distance
 import argparse
 import json
 import os
@@ -68,7 +68,7 @@ def run_experiment(object_type: str, experiment_param, vit_model, output_path):
             else:
                 anomaly_score = sim_matrix
 
-            #visualize_anomaly(sim_matrix, path, topk, output_path, experiment_name)
+            visualize_anomaly(sim_matrix, path, topk, output_path, experiment_name)
 
             score = anomaly_score.topk(topk, largest=True).values.mean().item()
 
