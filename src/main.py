@@ -33,11 +33,13 @@ def load_config(path):
 def run_experiment(object_type: str, experiment_param, vit_model, output_path):
     test_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'test'
     ref_path = PROJECT_ROOT / 'data' / 'mvtec_anomaly_detection' / object_type / 'train'
-
     if experiment_param['vit_model'] != "dinov3_vits16":
         score, labels = compute_scores_dino(vit_model, test_path, ref_path, experiment_param)
     else:
-        score, labels = compute_scores_dinov3(ref_path, test_path, experiment_param)
+        #login(token=os.environ.get("HUGGINGFACE_TOKEN"))
+        processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vits16-pretrain-lvd1689m")
+        model = AutoModel.from_pretrained("facebook/dinov3-vits16-pretrain-lvd1689m")
+        score, labels = compute_scores_dinov3(ref_path, test_path, experiment_param, model, processor)
 
     auc = roc_auc_score(labels, score)
 
@@ -94,11 +96,7 @@ def compute_scores_dino(model, test_path, ref_path, experiment_param):
     return values, labels
 
 
-def compute_scores_dinov3(ref_path, test_path, experiment_param):
-    #login(token=os.environ.get("HUGGINGFACE_TOKEN"))
-
-    processor = AutoImageProcessor.from_pretrained("facebook/dinov3-vits16-pretrain-lvd1689m")
-    model = AutoModel.from_pretrained("facebook/dinov3-vits16-pretrain-lvd1689m")
+def compute_scores_dinov3(ref_path, test_path, experiment_param, model, processor):
 
     # setup dataset
     ref_dataset = DatasetLoader(ref_path, transform=ProcessorTransform(processor))
@@ -149,9 +147,6 @@ def compute_scores_dinov3(ref_path, test_path, experiment_param):
     return values, labels
 
 
-
-    score, labels = 1, 1
-    return score, labels
 
 
 if __name__ == '__main__':

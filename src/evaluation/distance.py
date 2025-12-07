@@ -40,8 +40,6 @@ def ref_aggregation(ref_patches, image_patches, method: str):
         ref_patch = ref_patches.mean(dim=0)
     elif method == "median":
         ref_patch = ref_patches.median(dim=0).values
-    elif method == "max":
-        ref_patch = ref_patches.max(dim=0).values
     else:
         raise ValueError(f"Unknown ref_aggregation: {ref_aggregation}")
 
